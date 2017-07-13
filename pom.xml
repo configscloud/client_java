@@ -3,15 +3,34 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>configs.cloud.rest</groupId>
-	<artifactId>client</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<groupId>cloud.configs</groupId>
+	<artifactId>ConfigsCloudClient</artifactId>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
-	<name>client</name>
-	<description>Rest client for Cloud Configs</description>
-
+	<name>cloud.configs:ConfigsCloudClient</name>
+	<description>Client for Configs.Cloud, a Standards based Configuration Management System</description>
+	<url>https://configs.cloud/</url>
 	
+	<licenses>
+        <license>
+            <name>The MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>BridgeApps Ltd.</name>
+            <email>info@configs.cloud</email>
+            <organization>BridgeApps Ltd.</organization>
+            <organizationUrl>http://bridgeapps.co.uk/</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:configscloud/client_java.git</connection>
+        <developerConnection>scm:git:git@github.com:configscloud/client_java.git</developerConnection>
+        <url>https://github.com/configscloud/client_java</url> 
+    </scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
