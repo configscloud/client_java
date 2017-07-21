@@ -2,17 +2,18 @@ package configs.cloud.client.entity;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
-public class EnvReturnFormat implements Serializable{
+public class EnvWrapper implements Serializable{
 
 	private static final long serialVersionUID = 1L;
-	private Collection<Env> env;
+	private List<Env> env;
 
-	public Collection<Env> getEnv() {
+	public List<Env> getEnv() {
 		return env;
 	}
 
-	public void setEnv(Collection<Env> env) {
+	public void setEnv(List<Env> env) {
 		this.env = env;
 	}
 }
