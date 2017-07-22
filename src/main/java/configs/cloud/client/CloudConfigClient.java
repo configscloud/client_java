@@ -6,9 +6,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import configs.cloud.client.entity.Config;
@@ -18,26 +15,34 @@ import configs.cloud.client.entity.EnvWrapper;
 import configs.cloud.client.exceptions.ContextNotFoundException;
 import configs.cloud.client.exceptions.NotFoundException;
 import configs.cloud.client.util.ClientUtilities;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 
 public class CloudConfigClient {
 
-	private Logger logger = LoggerFactory.getLogger(CloudConfigClient.class);
-
 	private String apiKey;
 	private String url;
+	private boolean isEhcache;
+	private boolean isEhcacheResult=true;
 
 	private String currentEnvironment;
 	private Integer currentDataset = 0;
-
-	public CloudConfigClient(String apiKey, String url) {
+	
+	CacheManager cm = CacheManager.getInstance();
+	Cache cache = cm.getCache("cloud_cache");
+	public CloudConfigClient(String apiKey, String url, boolean isEhcache) {
 		super();
 		this.apiKey = apiKey;
 		this.url = url;
+		this.isEhcache = isEhcache;
 	}
-	public CloudConfigClient(String apiKey, String url, Integer dataset, String environment) {
+	public CloudConfigClient(String apiKey, String url,boolean isEhcache, Integer dataset, String environment) {
 		super();
 		this.apiKey = apiKey;
 		this.url = url;
+		this.isEhcache = isEhcache;
 		this.currentDataset = dataset;
 		this.currentEnvironment = environment;
 	}
@@ -78,19 +83,39 @@ public class CloudConfigClient {
 	 * @param datasetId
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Config> getConfigs(Integer datasetId) throws Exception {
 		
 		if (datasetId == 0) {
 			throw new ContextNotFoundException(
 					"Cannot identify current Dataset.");
 		}
-
+		
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(Constant.DATASETID, String.valueOf(datasetId));
+		
+		Element ele = cache.get(Constant.EHCACHE_GET_CONFIGS+datasetId);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_CONFIGS+datasetId)){
 
-		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS, apiKey);
-
-		return configs;
+				return (List<Config>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS, apiKey);
+			cache.put(new Element(Constant.EHCACHE_GET_CONFIGS+datasetId,configs));
+			ele = cache.get(Constant.EHCACHE_GET_CONFIGS+datasetId);
+			return configs;
+		}
+		else {
+			List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS, apiKey);	
+			return configs;					
+		}
+		
 	}
 
 
@@ -102,6 +127,7 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Config> getConfigs(String key) throws Exception {
 		
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
@@ -117,11 +143,30 @@ public class CloudConfigClient {
 		parameters.put(Constant.DATASETID, String.valueOf(currentDataset));
 		parameters.put(Constant.ENV_SHORTNAME, currentEnvironment);
 		parameters.put(Constant.KEY, key);
+		
+		Element ele = cache.get(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key)){
 
+				return (List<Config>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
+					apiKey);			cache.put(new Element(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key,configs));
+			ele = cache.get(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key);
+			return configs;
+		}
+		else {				
 		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
 				apiKey);
-
+		
 		return configs;
+		}
 
 	}
 
@@ -135,6 +180,7 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Config> getConfigs(String envsname, String key) throws Exception {
 		
 		if (currentDataset == 0 || envsname.isEmpty()) {
@@ -151,10 +197,31 @@ public class CloudConfigClient {
 		parameters.put(Constant.ENV_SHORTNAME, envsname);
 		parameters.put(Constant.KEY, key);
 
+		Element ele = cache.get(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key+envsname);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key+envsname)){
+
+				return (List<Config>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
+					apiKey);
+			cache.put(new Element(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key+envsname,configs));
+			ele = cache.get(Constant.EHCACHE_GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY+key+envsname);
+			return configs;
+		}
+		else {
+
 		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
 				apiKey);
 
 		return configs;
+		}
 
 	}
 	
@@ -167,6 +234,7 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Config> getConfigsForEnv(String envsname) throws Exception {
 		
 		if (currentDataset == 0) {
@@ -176,14 +244,34 @@ public class CloudConfigClient {
 			throw new ContextNotFoundException(
 					"Environment cannot be null. Recommendation: Call setClientDefaults to set current dataset and environment.");
 		}
+		
 
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(Constant.DATASETID, String.valueOf(currentDataset));
 		parameters.put(Constant.ENV_SHORTNAME, envsname);
 
-		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS_FOR_ENV, apiKey);
+		Element ele = cache.get(Constant.EHCACHE_GET_ALL_CONFIGS_FOR_ENV+envsname);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_ALL_CONFIGS_FOR_ENV+envsname)){
+
+				return (List<Config>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS_FOR_ENV, apiKey);
+			cache.put(new Element(Constant.EHCACHE_GET_ALL_CONFIGS_FOR_ENV+envsname,configs));
+			ele = cache.get(Constant.EHCACHE_GET_ALL_CONFIGS_FOR_ENV+envsname);
+			return configs;
+		}
+		else {
+			List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS_FOR_ENV, apiKey);
 
 		return configs;
+		}
 	}
 
 	/**
@@ -195,6 +283,7 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Config> searchConfig(String searchQuery) throws Exception {
 		
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
@@ -202,8 +291,28 @@ public class CloudConfigClient {
 					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
 		}
 		
-		List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, false, url, Constant.CONFIG_BY_RSQL_SEARCH, apiKey);
+		Element ele = cache.get(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery)){
+
+				return (List<Config>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {	
+			List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, false, url, Constant.CONFIG_BY_RSQL_SEARCH, apiKey);
+			cache.put(new Element(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery,configs));
+			ele = cache.get(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery);
+			return configs;
+		}
+		else {
+			List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, false, url, Constant.CONFIG_BY_RSQL_SEARCH, apiKey);
 		return configs;
+		
+		}
 	}
 	
 	
@@ -227,6 +336,7 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Config> searchConfig(String searchQuery, boolean iqk) throws Exception {
 		
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
@@ -234,8 +344,28 @@ public class CloudConfigClient {
 					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
 		}
 		
+		Element ele = cache.get(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery+iqk);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery+iqk)){
+
+				return (List<Config>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, iqk, url, Constant.CONFIG_BY_RSQL_SEARCH, apiKey);
+			cache.put(new Element(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery+iqk,configs));
+			ele = cache.get(Constant.EHCACHE_CONFIG_BY_RSQL_SEARCH+searchQuery+iqk);
+			return configs;
+		}
+		else {
+		
 		List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, iqk, url, Constant.CONFIG_BY_RSQL_SEARCH, apiKey);
 		return configs;
+		}
 
 	}
 	
@@ -321,14 +451,37 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Dataset> getDatasets() throws Exception {
 
 		Map<String, String> parameters = new HashMap<>();
+		
+		Element ele = cache.get(Constant.EHCACHE_GET_ALL_DATASET);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_ALL_DATASET)){
+
+				return (List<Dataset>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+	
+			List<Dataset> datasets = ClientUtilities.getDatasetCall(parameters, url, Constant.GET_ALL_DATASET,
+					apiKey);			
+			cache.put(new Element(Constant.EHCACHE_GET_ALL_DATASET,datasets));
+			ele = cache.get(Constant.EHCACHE_GET_ALL_DATASET);
+			return datasets;
+		}
+		else {
 		
 		List<Dataset> datasets = ClientUtilities.getDatasetCall(parameters, url, Constant.GET_ALL_DATASET,
 				apiKey);
 
 		return datasets;
+		}
 	}
 	
 	/**
@@ -345,14 +498,32 @@ public class CloudConfigClient {
 			throw new ContextNotFoundException(
 					"Invalid Dataset id");
 		}
-		
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(Constant.DATASETID, String.valueOf(datasetId));
+		Element ele = cache.get(Constant.EHCACHE_GET_DATASET_BY_DATASET+datasetId);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_DATASET_BY_DATASET+datasetId)){
 
-		List<Dataset> datasets = ClientUtilities.getDatasetCall(parameters, url, Constant.GET_DATASET_BY_DATASET,
-				apiKey);
-
-		return datasets.get(0);
+				return (Dataset) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			
+			List<Dataset> datasets = ClientUtilities.getDatasetCall(parameters, url, Constant.GET_DATASET_BY_DATASET,
+					apiKey);			
+			cache.put(new Element(Constant.EHCACHE_GET_DATASET_BY_DATASET+datasetId,datasets));
+			ele = cache.get(Constant.EHCACHE_GET_DATASET_BY_DATASET+datasetId);
+			return datasets.get(0);
+		}
+		else {				
+			List<Dataset> datasets = ClientUtilities.getDatasetCall(parameters, url, Constant.GET_DATASET_BY_DATASET,
+					apiKey);
+			return datasets.get(0);
+		}
 	}
 
 
@@ -362,14 +533,35 @@ public class CloudConfigClient {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Env> getEnvironments() throws Exception {
 
 		Map<String, String> parameters = new HashMap<>();
-		
-		EnvWrapper envWrapper = ClientUtilities.getEnvCall(parameters, url, Constant.GET_ALL_ENV,
-				apiKey, true);
+		Element ele = cache.get(Constant.EHCACHE_GET_ALL_ENV);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_ALL_ENV)){
 
-		return envWrapper.getEnv();
+				return (List<Env>) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			
+			EnvWrapper envWrapper = ClientUtilities.getEnvCall(parameters, url, Constant.GET_ALL_ENV,
+					apiKey, true);		
+			cache.put(new Element(Constant.EHCACHE_GET_ALL_ENV,envWrapper.getEnv()));
+			ele = cache.get(Constant.EHCACHE_GET_ALL_ENV);
+			return envWrapper.getEnv();
+		}
+		else {		
+		
+			EnvWrapper envWrapper = ClientUtilities.getEnvCall(parameters, url, Constant.GET_ALL_ENV,
+					apiKey, true);
+			return envWrapper.getEnv();
+		}
 	}
 	
 	/**
@@ -385,10 +577,31 @@ public class CloudConfigClient {
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put(Constant.ENV_SHORTNAME, sname);
 		
+		Element ele = cache.get(Constant.EHCACHE_GET_ENV_BY_ENV+sname);
+		if(isEhcache){
+			if(cache.isKeyInCache(Constant.EHCACHE_GET_ENV_BY_ENV+sname)){
+
+				return (Env) ele.getObjectValue();
+			}
+			else {
+				isEhcacheResult=false;
+			}
+		}		
+		
+		if(isEhcache && !isEhcacheResult ) {
+			EnvWrapper envWrapper = ClientUtilities.getEnvCall(parameters, url, Constant.GET_ENV_BY_ENV,
+					apiKey, false);		
+			cache.put(new Element(Constant.EHCACHE_GET_ENV_BY_ENV+sname,(envWrapper.getEnv()).get(0)));
+			ele = cache.get(Constant.EHCACHE_GET_ENV_BY_ENV+sname);
+			return (envWrapper.getEnv()).get(0);
+		}
+		else {		
+		
 		EnvWrapper envWrapper = ClientUtilities.getEnvCall(parameters, url, Constant.GET_ENV_BY_ENV,
 				apiKey, false);
 
 		return (envWrapper.getEnv()).get(0);
+		}
 	} 
 
 }
