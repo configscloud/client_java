@@ -152,4 +152,10 @@ public class Config implements Serializable {
 			return false;
 		return true;
 	}
+	
+	public String toString() {
+        return "" + configid + ":" + key + ":" + value + ":" +
+        		ispassword + ":" + isenabled + ":" + version + ":" +
+        		env.getEnvid() + ":" +  dataset.getDatasetid();
+    }
 }
