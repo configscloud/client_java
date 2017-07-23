@@ -1,6 +1,6 @@
 package configs.cloud.client.exceptions;
 
-public class NotFoundException extends RuntimeException {
+public class NotFoundException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public NotFoundException(){
