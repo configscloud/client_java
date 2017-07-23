@@ -61,9 +61,9 @@ public class CloudConfigClient {
 	}
 
 	/**
-	 * Gets all Configurations in the Default Dataset. Uses Default Dataset as
-	 * set by user. Before calling this function setClientDefaults(Integer
-	 * dataset, String environment ) should be called, otherwise an Exception
+	 * Gets all Configurations in the Default Dataset. Uses Default Dataset as <br/>
+	 * set by user. Before calling this function setClientDefaults(Integer <br/>
+	 * dataset, String environment ) should be called, otherwise an Exception <br/>
 	 * will be thrown.
 	 * 
 	 * @return
@@ -120,7 +120,7 @@ public class CloudConfigClient {
 
 
 	/**
-	 * Get all configs specific to a key
+	 * Get all configs specific to a key.<br/>
 	 * Use the setClientDefaults function to set the environment and dataset defaults
 	 * 
 	 * @param key
@@ -128,8 +128,7 @@ public class CloudConfigClient {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Config> getConfigs(String key) throws Exception {
-		
+    public String getConfigValue(String key) throws Exception {
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
 			throw new ContextNotFoundException(
 					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
@@ -164,16 +163,54 @@ public class CloudConfigClient {
 		else {				
 		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
 				apiKey);
+
+		String value = ""; 
+		if (configs.size() > 0)
+			value = configs.get(0).getValue();
 		
-		return configs;
-		}
-
+		return value; // there can be only one key/value
 	}
-
+	
 	/**
-	 * Get the value of a key specific to another environment. 
-	 * This environment value will override the environment value set in the setClientDefaults() 
-	 * for the same dataset 
+	 * Get all configs specific to a key<br/>
+	 * Use the setClientDefaults function to set the environment and dataset defaults.<br/>
+	 * if key doesnt exist, then null is returned
+	 * 
+	 * @param key
+	 * @return
+	 * @throws Exception
+	 */
+	public Config getConfig(String key) throws Exception {
+		
+		Config c = null;
+		
+		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
+			throw new ContextNotFoundException(
+					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
+		} else if (key.isEmpty()){
+			throw new NotFoundException(
+					"Key Cannot be Null");
+		}
+		
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put(Constant.DATASETID, String.valueOf(currentDataset));
+		parameters.put(Constant.ENV_SHORTNAME, currentEnvironment);
+		parameters.put(Constant.KEY, key);
+
+		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
+				apiKey);
+		
+		if (configs.size() > 0)
+			c = configs.get(0);
+		
+		return c; // there can be only one key/value
+	}
+	/**
+	 * Get the Config object for a key specific to another environment. <br/>
+	 * This environment value will override the environment value set in the setClientDefaults() <br/>
+	 * for the same dataset.<br/><br/>
+	 * 
+	 * If Key doesnt exist for this environment, then - null - is returned.
 	 * 
 	 * @param envsname
 	 * @param key
@@ -181,8 +218,9 @@ public class CloudConfigClient {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Config> getConfigs(String envsname, String key) throws Exception {
+	public Config getConfig(String envsname, String key) throws Exception {
 		
+		Config c = null;
 		if (currentDataset == 0 || envsname.isEmpty()) {
 			throw new ContextNotFoundException(
 					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
@@ -219,23 +257,24 @@ public class CloudConfigClient {
 
 		List<Config> configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_CONFIGS_BY_DATASET_AND_ENV_AND_KEY,
 				apiKey);
-
-		return configs;
-		}
+		if (configs.size() > 0)
+			c = configs.get(0);
+		
+		return c;
 
 	}
 	
 	/**
-	 * Get All configurations for a given environment.
-	 * This environment value will override the environment value set in the setClientDefaults() 
-	 * for the same dataset 
+	 * Get All configurations for a given environment.<br/>
+	 * This environment value will override the environment value set in the setClientDefaults() <br/>
+	 * for the same dataset.
 	 * 
 	 * @param envsname
 	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Config> getConfigsForEnv(String envsname) throws Exception {
+	public List<Config> getConfigs(String envsname) throws Exception {
 		
 		if (currentDataset == 0) {
 			throw new ContextNotFoundException(
@@ -275,8 +314,8 @@ public class CloudConfigClient {
 	}
 
 	/**
-	 * Search for a set of configurations using a RSQL.
-	 * Use setClientDefaults() to set applicable environment and dataset.
+	 * Search for a set of configurations using a RSQL.<br/>
+	 * Use setClientDefaults() to set applicable environment and dataset.<br/>
 	 * Refer documentation for more details of the RSQL
 	 * 
 	 * @param searchQuery
@@ -284,7 +323,7 @@ public class CloudConfigClient {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Config> searchConfig(String searchQuery) throws Exception {
+	public List<Config> searchConfigs(String searchQuery) throws Exception {
 		
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
 			throw new ContextNotFoundException(
@@ -317,19 +356,19 @@ public class CloudConfigClient {
 	
 	
 	/**
-	 * Search for a set of configurations using a RSQL - with iqk - feature
-	 * iqk - or "ignore query key" allows for keys to be returned without the key in the query. 
-	 * for e.g. if the query is for returning all keys which match the query = myapp.module.*, 
-	 * like myapp.module.address.streetname, myapp.module.address.addresline1 etc, will return keys
-	 * without the prefix - mayapp.module. In other words, the output keyset will be 
-	 * address.streetname, address.addressline1 etc.
+	 * Search for a set of configurations using a RSQL - with iqk - feature<br/>
+	 * iqk - or "ignore query key" allows for keys to be returned without the key in the query. <br/>
+	 * for e.g. if the query is for returning all keys which match the query = myapp.module.*, <br/>
+	 * like myapp.module.address.streetname, myapp.module.address.addresline1 etc, will return keys<br/>
+	 * without the prefix - mayapp.module. In other words, the output keyset will be <br/>
+	 * address.streetname, address.addressline1 etc.<br/><br/>
 	 * 
-	 * This flag allows to have same keys for e.g. name, address etc, to be used across multiple contexts.
-	 * Refer documentaiton for more information. 
+	 * This flag allows to have same keys for e.g. name, address etc, to be used across multiple contexts.<br/>
+	 * Refer documentaiton for more information. <br/><br/>
 	 * 
 	 * 
-	 * Use setClientDefaults() to set applicable environment and dataset.
-	 * Refer documentation for more details of the RSQL
+	 * Use setClientDefaults() to set applicable environment and dataset.<br/>
+	 * Refer documentation for more details of the RSQL<br/>
 	 * 
 	 * @param searchQuery
 	 * @param iqk
@@ -337,7 +376,7 @@ public class CloudConfigClient {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Config> searchConfig(String searchQuery, boolean iqk) throws Exception {
+	public List<Config> searchConfigs(String searchQuery, boolean iqk) throws Exception {
 		
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
 			throw new ContextNotFoundException(
@@ -370,7 +409,7 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Updates the config with the value.
+	 * Updates the config with the value.<br/>
 	 * 
 	 * @param key
 	 * @param value
@@ -406,7 +445,7 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Updates the config with isEnabled status. 
+	 * Updates the config with isEnabled status. <br/>
 	 * Do note that the isEnabled status cannot be updated with the value of the config.
 	 * 
 	 * @param key
@@ -446,7 +485,7 @@ public class CloudConfigClient {
 	}
 
 	/**
-	 * Returns lits of all Datasets allocated to the user.
+	 * Returns list of all Datasets allocated to the user.<br/>
 	 * 
 	 * @return
 	 * @throws Exception
@@ -485,7 +524,7 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Returns a specific dataset with id provided. If a dataset with the id doenst exist, 
+	 * Returns a specific dataset with id provided. If a dataset with the id doenst exist, <br/>
 	 * null is returned.
 	 * 
 	 * @param datasetId
@@ -528,7 +567,7 @@ public class CloudConfigClient {
 
 
 	/**
-	 * Returns the list of Environments available.
+	 * Returns the list of Environments available.<br/>
 	 * 
 	 * @return
 	 * @throws Exception
@@ -565,7 +604,7 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Returns an environment with short name provided.
+	 * Returns an environment with short name provided.<br/>
 	 * If the environment is not available with name provided, null is returned.
 	 * 
 	 * @param sname
