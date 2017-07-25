@@ -11,7 +11,7 @@ import configs.cloud.client.entity.Env;
 
 public class CloudConfigClientTest {
 	
-	CloudConfigClient tester = new CloudConfigClient("dG04MHBwUEJsMG81NU1GUktYZmEy","https://app.configs.cloud/"); // MyClass is tested
+	CloudConfigClient tester = new CloudConfigClient("dG04MHBwUEJsMG81NU1GUktYZmEy","https://app.configs.cloud/",true); // MyClass is tested
 	
 	Config c = new Config();
 	
@@ -86,7 +86,7 @@ public class CloudConfigClientTest {
 	@Test
 	public void testGetConfigsWithKeynameWrong() throws Exception {	
 		//right keyname
-		assertEquals("Get config with invalid key","",tester.getConfigValue(testkey + ".notexist"));
+		assertEquals("Get config with invalid key", null, tester.getConfigValue(testkey + ".notexist"));
     }
 	
 	@Test

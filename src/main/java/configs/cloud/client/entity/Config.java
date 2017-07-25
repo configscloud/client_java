@@ -19,7 +19,6 @@ public class Config implements Serializable {
 	private int version;
 		
 	private Env env;
-	
 		
 	private Dataset dataset;
 

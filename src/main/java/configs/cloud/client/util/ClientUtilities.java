@@ -3,13 +3,14 @@ package configs.cloud.client.util;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
@@ -27,6 +28,8 @@ import configs.cloud.client.exceptions.NotFoundException;
 import configs.cloud.client.exceptions.UnAuthorizedException;
 
 public class ClientUtilities {
+	
+	private static final Logger logger = Logger.getLogger(ClientUtilities.class);
 
 	public static List<Config> getConfigCall(Map<String, String> parameters, String url, String queryApi,
 			String apiKey) throws Exception {
@@ -197,19 +200,33 @@ public class ClientUtilities {
 		return mapper.readValue(output, clazz);
 	}
 
+	/**
+	 * 
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	private static ClientResponse verifyResponse(ClientResponse response) throws Exception {
+		
+		logger.debug("Server response status : "  + response.getStatus());		
+		
 		if (response.getStatus() == 200) {
 			return response;
+			
 		} else if (response.getStatus() == 401) {
 			throw new UnAuthorizedException("UnAuthorized");
+			
 		} else if (response.getStatus() == 403) {
 			throw new ForbiddenException("Access denied");
+			
 		} else if (response.getStatus() == 404) {
 			throw new NotFoundException("Resource requested was not found on the server");
+			
 		} else {
 			throw new RuntimeException("Internal server error");
 		}
 	}
+	
 	private static URI replaceParametersOnURL(String template, Map<String, String> parameters) {
 		UriBuilder builder = UriBuilder.fromPath(template);
 		URI output = builder.buildFromMap(parameters);
