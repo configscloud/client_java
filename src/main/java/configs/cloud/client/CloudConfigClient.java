@@ -458,7 +458,7 @@ public class CloudConfigClient {
 		} else if (key.isEmpty()){
 			throw new NotFoundException(
 					"Key Cannot be Null");
-		} else if (String.valueOf(isenabled).equals("Y") == false || String.valueOf(isenabled).equals("N") == false){
+		} else if (String.valueOf(isenabled).equals("Y") == false && String.valueOf(isenabled).equals("N") == false){
 			throw new NotFoundException(
 					"isEnabled should be either of Y or N");
 		}

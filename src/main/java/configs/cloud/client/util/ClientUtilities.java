@@ -87,7 +87,7 @@ public class ClientUtilities {
 		try {
 
 			// Call server
-			response = makeGetCall(url + queryApi, parameters, queryParams, apiKey);
+			response = makePutCall(url + queryApi, parameters, queryParams, apiKey);
 			
 		} catch (Exception e) {
 			throw e;
