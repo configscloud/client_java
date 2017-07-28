@@ -20,7 +20,7 @@ public class CloudConfigClientTest {
 	String testkey = "ldap.hostname";
 	String testValue = "dev.ldap.example.com"; 
 	String envSname = "Dev"; 
-	String searchKey = "ldap.*";
+	String searchKey = "key==dev.ldap.*";
 	
 	public CloudConfigClientTest(){
 		tester.setClientDefaults(2, "Dev");
@@ -137,7 +137,7 @@ public class CloudConfigClientTest {
 	public void testSearchConfigs() throws Exception {	
 		//search for a key list
 		System.out.println(tester.searchConfigs(searchKey));
-		assertTrue(tester.searchConfigs(searchKey) == null);
+		assertTrue(tester.searchConfigs(searchKey).size() == 0);
     }
 	
 	// There is a issue here ****  needs attention *** 
@@ -145,7 +145,7 @@ public class CloudConfigClientTest {
 	public void testSearchConfigsWithIqkSuccess() throws Exception {	
 		//search for a key list
 		//System.out.println(tester.searchConfigs(searchKey,true));
-		assertTrue(tester.searchConfigs(searchKey) == null);
+		assertTrue(tester.searchConfigs(searchKey, true).size() == 0);
     }
 	
 	// There is a issue here ****  needs attention *** 
@@ -153,7 +153,7 @@ public class CloudConfigClientTest {
 	public void testSearchConfigsWithIqkFailure() throws Exception {	
 		//search for a key list
 		//System.out.println(tester.searchConfigs(searchKey,false));
-		assertTrue(tester.searchConfigs(searchKey) == null);
+		assertTrue(tester.searchConfigs(searchKey,false).size() == 0);
     }
 	
 	

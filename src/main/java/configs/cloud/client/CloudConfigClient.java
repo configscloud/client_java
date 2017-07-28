@@ -35,7 +35,7 @@ public class CloudConfigClient {
 	
 	private String apiKey;
 	private String url;
-	private boolean isEhcache = false;				
+	private boolean isCached = false;				
 	private String currentEnvironment;
 	private Integer currentDataset = 0;	
 	private CacheManager cm = null;	
@@ -44,21 +44,21 @@ public class CloudConfigClient {
 	 * 
 	 * @param apiKey Api Key
 	 * @param url Api endpoint
-	 * @param isEhcache if cache enabled or disabled. By default disabled
+	 * @param isCached if cache enabled or disabled. By default disabled
 	 */
-	public CloudConfigClient(String apiKey, String url, boolean isEhcache) {
+	public CloudConfigClient(String apiKey, String url, boolean isCached) {
 		
 		super();		
 		logger.debug("Initializing cloud config client...");					
 		
 		this.apiKey = apiKey;
 		this.url = url;				
-		this.isEhcache = isEhcache;
+		this.isCached = isCached;
 		
-		if(this.isEhcache) {		
-			logger.debug("Ehcahe is enabled. Creating Ehcahe cache manager..");				
+		if(this.isCached) {		
+			logger.debug("Cache is enabled. Creating Cache cache manager..");				
 			cm = CacheManager.getInstance();
-			logger.debug("Ehcahe cache manager created.");
+			logger.debug("Cache cache manager created.");
 		}
 		
 		logger.debug("Cloud config client initialized successfully.");
@@ -68,25 +68,25 @@ public class CloudConfigClient {
 	 * 
 	 * @param apiKey Api Key
 	 * @param url Api endpoint
-	 * @param isEhcache if cache enabled or disabled. By default disabled
+	 * @param isCached if cache enabled or disabled. By default disabled
 	 * @param dataset Current dataset
 	 * @param environment Current environment
 	 */
-	public CloudConfigClient(String apiKey, String url,boolean isEhcache, Integer dataset, String environment) {
+	public CloudConfigClient(String apiKey, String url,boolean isCached, Integer dataset, String environment) {
 		
 		super();
 		logger.debug("Initializing cloud config client...");
 		
 		this.apiKey = apiKey;
 		this.url = url;
-		this.isEhcache = isEhcache;
+		this.isCached = isCached;
 		this.currentDataset = dataset;
 		this.currentEnvironment = environment;
 		
-		if(this.isEhcache) {
-			logger.debug("Ehcahe is enabled. Creating Ehcahe cache manager..");				
+		if(this.isCached) {
+			logger.debug("Cache is enabled. Creating cache manager..");				
 			cm = CacheManager.getInstance();
-			logger.debug("Ehcahe cache manager created.");
+			logger.debug("Cache manager created.");
 		}
 		
 		logger.debug("Cloud config client initialized successfully.");
@@ -112,9 +112,9 @@ public class CloudConfigClient {
 	 */
 	private Cache getCache(String name) {
 		
-		logger.debug("Cache enabeld : " + this.isEhcache);
+		logger.debug("Cache enabeld : " + this.isCached);
 		
-		if(isEhcache) {	
+		if(isCached) {	
 			
 			logger.debug("Getting cache : " + name);
 			Cache cache = cm.getCache(name);
@@ -172,7 +172,7 @@ public class CloudConfigClient {
 		}		
 						
 		List<Config> configs = new ArrayList<>();
-		if(isEhcache) {
+		if(isCached) {
 			configs = getConfigListFromCache(datasetId);			
 		}
 		
@@ -209,7 +209,7 @@ public class CloudConfigClient {
 		}
 								
 		Config config = null;
-		if(isEhcache) {			
+		if(isCached) {			
 			config = getConfigFromCache(currentDataset, currentEnvironment, key);			
 		}
 		
@@ -252,7 +252,7 @@ public class CloudConfigClient {
 		}		
 		
 		Config config = null;
-		if(isEhcache) {
+		if(isCached) {
 			config = getConfigFromCache(currentDataset, currentEnvironment, key);
 		}
 		
@@ -296,7 +296,7 @@ public class CloudConfigClient {
 		}
 		
 		Config config = null;
-		if(isEhcache) {
+		if(isCached) {
 			config = getConfigFromCache(currentDataset, envsname, key);
 		}
 		
@@ -338,7 +338,7 @@ public class CloudConfigClient {
 		}
 		
 		List<Config> configs = new ArrayList<>();		
-		if(isEhcache) {
+		if(isCached) {
 			configs = getConfigListFromCache(currentDataset, envsname);
 		}
 		
@@ -555,8 +555,10 @@ public class CloudConfigClient {
 	}	
 	
 	
-	/** PRIVATE METHOD **/
-
+	/** ================= **/
+	/** PRIVATE METHODS   **/
+	/** ================= **/
+	
 	/**
 	 * 
 	 * @return
