@@ -92,64 +92,44 @@ public class CloudConfigClient {
 		logger.debug("Cloud config client initialized successfully.");
 	}
 
+	/**
+	 * Returns Environment Short name under context
+	 * 
+	 * @return String Environment Shortname
+	 */
 	public String getCurrentEnvironment() {
 		return currentEnvironment;
 	}
 
+	/**
+	 * Returns Dataset Id under context
+	 * 
+	 * @return Integer Dataset Id
+	 */
 	public Integer getCurrentDataset() {
 		return currentDataset;
 	}
 
-	public void setClientDefaults(Integer dataset, String environment) {
-		this.currentDataset = dataset;
+
+	/**
+	 * Sets Default Datasetid and Environment ShortName in the context for all further API calls
+	 * @param datasetId
+	 * @param environment
+	 */
+	public void setClientDefaults(Integer datasetId, String environment) {
+		this.currentDataset = datasetId;
 		this.currentEnvironment = environment;
 	}
 
-	/**
-	 * Get cache with particular name. Create one if not available and return.
-	 * @param name
-	 * @return
-	 */
-	private Cache getCache(String name) {
-		
-		logger.debug("Cache enabeld : " + this.isCached);
-		
-		if(isCached) {	
-			
-			logger.debug("Getting cache : " + name);
-			Cache cache = cm.getCache(name);
-			
-			if(null == cache) {
-				
-				logger.debug("Cache not found. Creating new cache : " + name);
-				
-				CacheConfiguration cacheConfiguration = new CacheConfiguration();
-				cacheConfiguration.setName(name);		
-				cacheConfiguration.setMaxEntriesLocalHeap(1000);
-				cacheConfiguration.timeToIdleSeconds(1000);
-				cacheConfiguration.timeToLiveSeconds(1000);
-				
-				cache = new Cache(cacheConfiguration);
-				logger.debug("New cache created : " + name);
-				
-				cm.addCache(cache);
-				logger.debug("New cache added to cache manager.");
-			}
-			
-			return cache;
-		}
-		
-		return null;
-	}
 	
 	/**
-	 * Gets all Configurations in the Default Dataset. Uses Default Dataset as <br/>
-	 * set by user. Before calling this function setClientDefaults(Integer <br/>
-	 * dataset, String environment ) should be called, otherwise an Exception <br/>
+	 * Gets all Configurations in the Default Dataset. Uses Default Dataset as <br>
+	 * set by user. Before calling this function setClientDefaults(Integer <br>
+	 * dataset, String environment ) should be called, otherwise an Exception <br>
 	 * will be thrown.
 	 * 
-	 * @return
-	 * @throws ConfigsClientException
+	 * @return {@link List}&lt;{@link Config}&gt;
+	 * @throws Exception
 	 */
 	public List<Config> getConfigs() throws ContextNotFoundException, Exception {
 		if (currentDataset == 0) {
@@ -163,7 +143,8 @@ public class CloudConfigClient {
 	 * Gets all Configurations in the requested Dataset.
 	 * 
 	 * @param datasetId
-	 * @return
+	 * @return {@link List}&lt;{@link Config}&gt; 
+	 * @throws Exception
 	 */
 	public List<Config> getConfigs(Integer datasetId) throws Exception {
 		
@@ -191,11 +172,11 @@ public class CloudConfigClient {
 	}
 
 	/**
-	 * Get all configs specific to a key.<br/>
+	 * Get all configs specific to a key.<br>
 	 * Use the setClientDefaults function to set the environment and dataset defaults
 	 * 
 	 * @param key
-	 * @return
+	 * @return String Value
 	 * @throws Exception
 	 */	
     public String getConfigValue(String key) throws Exception {
@@ -233,12 +214,12 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Get all configs specific to a key<br/>
-	 * Use the setClientDefaults function to set the environment and dataset defaults.<br/>
+	 * Get all configs specific to a key<br>
+	 * Use the setClientDefaults function to set the environment and dataset defaults.<br>
 	 * if key doesnt exist, then null is returned
 	 * 
 	 * @param key
-	 * @return
+	 * @return Config Object
 	 * @throws Exception
 	 */
 	public Config getConfig(String key) throws Exception {
@@ -275,15 +256,15 @@ public class CloudConfigClient {
 		return config;
 	}
 	/**
-	 * Get the Config object for a key specific to another environment. <br/>
-	 * This environment value will override the environment value set in the setClientDefaults() <br/>
-	 * for the same dataset.<br/><br/>
+	 * Get the Config object for a key specific to another environment. <br>
+	 * This environment value will override the environment value set in the setClientDefaults() <br>
+	 * for the same dataset.<br><br>
 	 * 
 	 * If Key doesnt exist for this environment, then - null - is returned.
 	 * 
 	 * @param envsname
 	 * @param key
-	 * @return
+	 * @return Config object
 	 * @throws Exception
 	 */
 	public Config getConfig(String envsname, String key) throws Exception {
@@ -319,12 +300,12 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Get All configurations for a given environment.<br/>
-	 * This environment value will override the environment value set in the setClientDefaults() <br/>
+	 * Get All configurations for a given environment.<br>
+	 * This environment value will override the environment value set in the setClientDefaults() <br>
 	 * for the same dataset.
 	 * 
 	 * @param envsname
-	 * @return
+	 * @return {@link List}&lt;{@link Config}&gt; List of all Configurations
 	 * @throws Exception
 	 */
 	public List<Config> getConfigs(String envsname) throws Exception {
@@ -356,12 +337,12 @@ public class CloudConfigClient {
 	}
 
 	/**
-	 * Search for a set of configurations using a RSQL.<br/>
-	 * Use setClientDefaults() to set applicable environment and dataset.<br/>
+	 * Search for a set of configurations using a RSQL.<br>
+	 * Use setClientDefaults() to set applicable environment and dataset.<br>
 	 * Refer documentation for more details of the RSQL
 	 * 
 	 * @param searchQuery
-	 * @return
+	 * @return {@link List}&lt;{@link Config}&gt;
 	 * @throws Exception
 	 */
 	public List<Config> searchConfigs(String searchQuery) throws Exception {
@@ -378,23 +359,23 @@ public class CloudConfigClient {
 	
 	
 	/**
-	 * Search for a set of configurations using a RSQL - with iqk - feature<br/>
-	 * iqk - or "ignore query key" allows for keys to be returned without the key in the query. <br/>
-	 * for e.g. if the query is for returning all keys which match the query = myapp.module.*, <br/>
-	 * like myapp.module.address.streetname, myapp.module.address.addresline1 etc, will return keys<br/>
-	 * without the prefix - mayapp.module. In other words, the output keyset will be <br/>
-	 * address.streetname, address.addressline1 etc.<br/><br/>
+	 * Search for a set of configurations using a RSQL - with iqk - feature<br>
+	 * iqk - or "ignore query key" allows for keys to be returned without the key in the query. <br>
+	 * for e.g. if the query is for returning all keys which match the query = myapp.module.*, <br>
+	 * like myapp.module.address.streetname, myapp.module.address.addresline1 etc, will return keys<br>
+	 * without the prefix - mayapp.module. In other words, the output keyset will be <br>
+	 * address.streetname, address.addressline1 etc.<br><br>
 	 * 
-	 * This flag allows to have same keys for e.g. name, address etc, to be used across multiple contexts.<br/>
-	 * Refer documentaiton for more information. <br/><br/>
+	 * This flag allows to have same keys for e.g. name, address etc, to be used across multiple contexts.<br>
+	 * Refer documentaiton for more information. <br><br>
 	 * 
 	 * 
-	 * Use setClientDefaults() to set applicable environment and dataset.<br/>
-	 * Refer documentation for more details of the RSQL<br/>
+	 * Use setClientDefaults() to set applicable environment and dataset.<br>
+	 * Refer documentation for more details of the RSQL<br>
 	 * 
 	 * @param searchQuery
 	 * @param iqk
-	 * @return
+	 * @return {@link List}&lt;{@link Config}&gt;
 	 * @throws Exception
 	 */
 	public List<Config> searchConfigs(String searchQuery, boolean iqk) throws Exception {		
@@ -407,11 +388,11 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Updates the config with the value.<br/>
+	 * Updates the config with the value.<br>
 	 * 
 	 * @param key
 	 * @param value
-	 * @return
+	 * @return boolean - Updated Status
 	 * @throws Exception
 	 */
 	public boolean updateConfig(String key, String value) throws Exception {
@@ -442,12 +423,12 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Updates the config with isEnabled status. <br/>
+	 * Updates the config with isEnabled status. <br>
 	 * Do note that the isEnabled status cannot be updated with the value of the config.
 	 * 
 	 * @param key
 	 * @param isenabled
-	 * @return
+	 * @return boolean - Update Status
 	 * @throws Exception
 	 */
 	public boolean updateConfig(String key, Character isenabled) throws Exception {
@@ -482,9 +463,9 @@ public class CloudConfigClient {
 	}
 
 	/**
-	 * Returns list of all Datasets allocated to the user.<br/>
+	 * Returns list of all Datasets allocated to the user.<br>
 	 * 
-	 * @return
+	 * @return {@link List}&lt;{@link Dataset}&gt;
 	 * @throws Exception
 	 */
 	public List<Dataset> getDatasets() throws Exception {
@@ -496,11 +477,11 @@ public class CloudConfigClient {
 	}	
 	
 	/**
-	 * Returns a specific dataset with id provided. If a dataset with the id doenst exist, <br/>
+	 * Returns a specific dataset with id provided. If a dataset with the id doenst exist, <br>
 	 * null is returned.
 	 * 
 	 * @param datasetId
-	 * @return
+	 * @return Dataset - Returns the dataset context
 	 * @throws Exception
 	 */
 	public Dataset getDataset(Long datasetId) throws Exception {
@@ -526,9 +507,9 @@ public class CloudConfigClient {
 	
 
 	/**
-	 * Returns the list of Environments available.<br/>
+	 * Returns the list of Environments available.<br>
 	 * 
-	 * @return
+	 * @return {@link List}&lt;{@link Env}&gt; List of Environments for Current user
 	 * @throws Exception
 	 */
 	public List<Env> getEnvironments() throws Exception {
@@ -539,16 +520,16 @@ public class CloudConfigClient {
 	}
 	
 	/**
-	 * Returns an environment with short name provided.<br/>
+	 * Returns an environment with short name provided.<br>
 	 * If the environment is not available with name provided, null is returned.
 	 * 
-	 * @param sname
-	 * @return
+	 * @param shortname
+	 * @return Env - Environment details for given shortname 
 	 * @throws Exception
 	 */
-	public Env getEnvironment(String sname) throws Exception {		
+	public Env getEnvironment(String shortname) throws Exception {		
 		Map<String, String> parameters = new HashMap<>();
-		parameters.put(Constant.ENV_SHORTNAME, sname);				
+		parameters.put(Constant.ENV_SHORTNAME, shortname);				
 		EnvWrapper envWrapper = ClientUtilities.getEnvCall(parameters, url, Constant.GET_ENV_BY_ENV,
 				apiKey, false);
 		return (envWrapper.getEnv()).get(0);
@@ -558,6 +539,43 @@ public class CloudConfigClient {
 	/** ================= **/
 	/** PRIVATE METHODS   **/
 	/** ================= **/
+
+	/**
+	 * Get cache with particular name. Create one if not available and return.
+	 * @param name
+	 * @return Cache
+	 */
+	private Cache getCache(String name) {
+		
+		logger.debug("Cache enabeld : " + this.isCached);
+		
+		if(isCached) {	
+			
+			logger.debug("Getting cache : " + name);
+			Cache cache = cm.getCache(name);
+			
+			if(null == cache) {
+				
+				logger.debug("Cache not found. Creating new cache : " + name);
+				
+				CacheConfiguration cacheConfiguration = new CacheConfiguration();
+				cacheConfiguration.setName(name);		
+				cacheConfiguration.setMaxEntriesLocalHeap(1000);
+				cacheConfiguration.timeToIdleSeconds(1000);
+				cacheConfiguration.timeToLiveSeconds(1000);
+				
+				cache = new Cache(cacheConfiguration);
+				logger.debug("New cache created : " + name);
+				
+				cm.addCache(cache);
+				logger.debug("New cache added to cache manager.");
+			}
+			
+			return cache;
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * 

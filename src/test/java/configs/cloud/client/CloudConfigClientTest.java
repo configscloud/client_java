@@ -129,7 +129,8 @@ public class CloudConfigClientTest {
 	@Test
 	public void testGetConfigsForWrongEnv() throws Exception {	
 		//wrong env name
-		assertTrue(tester.getConfigs(envSname+ ".notexist") == null);
+		System.out.println("==>>"  + tester.getConfigs(envSname+ ".notexist1"));
+		assertTrue(tester.getConfigs(envSname+ ".notexist").size() == 0);
     }
 	
 	// There is a issue here ****  needs attention *** 

@@ -1,4 +1,8 @@
-<ehcache xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+<ehcache 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="classpath:./ehcache.xsd" updateCheck="true" 
+monitoring="autodetect" dynamicConfig="true">
+
 <!--
     DiskStore configuration
     =======================
