@@ -8,10 +8,11 @@ import org.junit.Test;
 import configs.cloud.client.entity.Config;
 import configs.cloud.client.entity.Dataset;
 import configs.cloud.client.entity.Env;
+import configs.cloud.client.enums.CacheProvider;
 
 public class CloudConfigClientTest {
 	
-	CloudConfigClient tester = new CloudConfigClient("dG04MHBwUEJsMG81NU1GUktYZmEy","https://app.configs.cloud/",true); // MyClass is tested
+	CloudConfigClient tester = new CloudConfigClient("dG04MHBwUEJsMG81NU1GUktYZmEy","https://app.configs.cloud/",true,CacheProvider.HAZELCAST); // MyClass is tested
 	
 	Config c = new Config();
 	

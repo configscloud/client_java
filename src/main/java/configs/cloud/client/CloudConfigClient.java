@@ -2,43 +2,39 @@ package configs.cloud.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.core.MultivaluedMap;
-
 import org.apache.log4j.Logger;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import configs.cloud.client.entity.Config;
 import configs.cloud.client.entity.Dataset;
 import configs.cloud.client.entity.Env;
 import configs.cloud.client.entity.EnvWrapper;
+import configs.cloud.client.enums.CacheProvider;
 import configs.cloud.client.exceptions.ContextNotFoundException;
 import configs.cloud.client.exceptions.NotFoundException;
+import configs.cloud.client.factory.CacheFactory;
+import configs.cloud.client.service.CacheService;
 import configs.cloud.client.util.ClientUtilities;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
 
 /**
  * 
  * @author Pushkar
  *
  */
+
 public class CloudConfigClient {
 	
 	private static final Logger logger = Logger.getLogger(CloudConfigClient.class);	
-	private static final String CONFIG_CACHE = "config_cache_";
-	private static final String ENV_KEY_SEPARATOR = ":";
 	
 	private String apiKey;
 	private String url;
 	private boolean isCached = false;				
 	private String currentEnvironment;
-	private Integer currentDataset = 0;	
-	private CacheManager cm = null;	
+	private Integer currentDataset = 0;		
+	private CacheService cacheService;
+	private CacheProvider cacheProvider=CacheProvider.EHCACHE;
 	
 	/**
 	 * 
@@ -46,7 +42,7 @@ public class CloudConfigClient {
 	 * @param url Api endpoint
 	 * @param isCached if cache enabled or disabled. By default disabled
 	 */
-	public CloudConfigClient(String apiKey, String url, boolean isCached) {
+	public CloudConfigClient(String apiKey, String url, boolean isCached,CacheProvider cprovider) {
 		
 		super();		
 		logger.debug("Initializing cloud config client...");					
@@ -54,10 +50,15 @@ public class CloudConfigClient {
 		this.apiKey = apiKey;
 		this.url = url;				
 		this.isCached = isCached;
-		
-		if(this.isCached) {		
+		this.cacheProvider= cprovider;
+		if(this.isCached) {	
+			
+			if(this.cacheProvider == null){
+				this.cacheProvider = CacheProvider.EHCACHE;
+			}		
+			
+			cacheService = CacheFactory.getCacheService(cacheProvider);
 			logger.debug("Cache is enabled. Creating Cache cache manager..");				
-			cm = CacheManager.getInstance();
 			logger.debug("Cache cache manager created.");
 		}
 		
@@ -72,7 +73,7 @@ public class CloudConfigClient {
 	 * @param dataset Current dataset
 	 * @param environment Current environment
 	 */
-	public CloudConfigClient(String apiKey, String url,boolean isCached, Integer dataset, String environment) {
+	public CloudConfigClient(String apiKey, String url,boolean isCached, Integer dataset, String environment,CacheProvider cprovider) {
 		
 		super();
 		logger.debug("Initializing cloud config client...");
@@ -82,10 +83,15 @@ public class CloudConfigClient {
 		this.isCached = isCached;
 		this.currentDataset = dataset;
 		this.currentEnvironment = environment;
-		
+		this.cacheProvider= cprovider;
 		if(this.isCached) {
+			
+			if(this.cacheProvider == null){
+				this.cacheProvider = CacheProvider.EHCACHE;
+			}		
+			
+			cacheService = CacheFactory.getCacheService(cacheProvider);
 			logger.debug("Cache is enabled. Creating cache manager..");				
-			cm = CacheManager.getInstance();
 			logger.debug("Cache manager created.");
 		}
 		
@@ -154,7 +160,7 @@ public class CloudConfigClient {
 						
 		List<Config> configs = new ArrayList<>();
 		if(isCached) {
-			configs = getConfigListFromCache(datasetId);			
+			configs = cacheService.getConfigListFromCache(datasetId);			
 		}
 		
 		// Note : For datasets having size 0, always hit url
@@ -165,7 +171,7 @@ public class CloudConfigClient {
 			configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS,
 					apiKey);
 			
-			storeConfigToCache(datasetId, configs);
+			cacheService.storeConfigToCache(datasetId, configs);
 		}			
 		
 		return configs;				
@@ -191,7 +197,7 @@ public class CloudConfigClient {
 								
 		Config config = null;
 		if(isCached) {			
-			config = getConfigFromCache(currentDataset, currentEnvironment, key);			
+			config = cacheService.getConfigFromCache(currentDataset, currentEnvironment, key);			
 		}
 		
 		if(config == null) {
@@ -206,7 +212,7 @@ public class CloudConfigClient {
 			
 			if(configs != null && configs.size() > 0){				
 				config = configs.get(0);
-				storeConfigToCache(currentDataset, currentEnvironment, config);
+				cacheService.storeConfigToCache(currentDataset, currentEnvironment, config);
 			}
 		}
 		
@@ -234,7 +240,7 @@ public class CloudConfigClient {
 		
 		Config config = null;
 		if(isCached) {
-			config = getConfigFromCache(currentDataset, currentEnvironment, key);
+			config = cacheService.getConfigFromCache(currentDataset, currentEnvironment, key);
 		}
 		
 		if(config == null) {
@@ -249,7 +255,7 @@ public class CloudConfigClient {
 			
 			if(configs != null && configs.size() > 0){				
 				config = configs.get(0);
-				storeConfigToCache(currentDataset, currentEnvironment, config);
+				cacheService.storeConfigToCache(currentDataset, currentEnvironment, config);
 			}		
 		}
 		
@@ -278,7 +284,7 @@ public class CloudConfigClient {
 		
 		Config config = null;
 		if(isCached) {
-			config = getConfigFromCache(currentDataset, envsname, key);
+			config = cacheService.getConfigFromCache(currentDataset, envsname, key);
 		}
 		
 		if(config == null) {
@@ -292,7 +298,7 @@ public class CloudConfigClient {
 					apiKey);
 			if (configs.size() > 0) {
 				config = configs.get(0);
-				storeConfigToCache(currentDataset, envsname, config);
+				cacheService.storeConfigToCache(currentDataset, envsname, config);
 			}
 		}
 		
@@ -320,7 +326,7 @@ public class CloudConfigClient {
 		
 		List<Config> configs = new ArrayList<>();		
 		if(isCached) {
-			configs = getConfigListFromCache(currentDataset, envsname);
+			configs = cacheService.getConfigListFromCache(currentDataset, envsname);
 		}
 		
 		if(configs == null || configs.size() == 0) {
@@ -330,7 +336,7 @@ public class CloudConfigClient {
 			parameters.put(Constant.ENV_SHORTNAME, envsname);
 			
 			configs = ClientUtilities.getConfigCall(parameters, url, Constant.GET_ALL_CONFIGS_FOR_ENV, apiKey);		
-			storeConfigToCache(currentDataset, configs);
+			cacheService.storeConfigToCache(currentDataset, configs);
 		}
 		
 		return configs;
@@ -534,153 +540,6 @@ public class CloudConfigClient {
 				apiKey, false);
 		return (envWrapper.getEnv()).get(0);
 	}	
-	
-	
-	/** ================= **/
-	/** PRIVATE METHODS   **/
-	/** ================= **/
 
-	/**
-	 * Get cache with particular name. Create one if not available and return.
-	 * @param name
-	 * @return Cache
-	 */
-	private Cache getCache(String name) {
-		
-		logger.debug("Cache enabeld : " + this.isCached);
-		
-		if(isCached) {	
-			
-			logger.debug("Getting cache : " + name);
-			Cache cache = cm.getCache(name);
-			
-			if(null == cache) {
-				
-				logger.debug("Cache not found. Creating new cache : " + name);
-				
-				CacheConfiguration cacheConfiguration = new CacheConfiguration();
-				cacheConfiguration.setName(name);		
-				cacheConfiguration.setMaxEntriesLocalHeap(1000);
-				cacheConfiguration.timeToIdleSeconds(1000);
-				cacheConfiguration.timeToLiveSeconds(1000);
-				
-				cache = new Cache(cacheConfiguration);
-				logger.debug("New cache created : " + name);
-				
-				cm.addCache(cache);
-				logger.debug("New cache added to cache manager.");
-			}
-			
-			return cache;
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private List<Config> getConfigListFromCache(Integer datasetId) {
-		
-		logger.debug("Getting config from cache. Dataset Id : " + datasetId);
-		
-		Cache cache = getCache(CONFIG_CACHE + datasetId);		
-		if(null != cache) {				
-		
-			List<Config> configs = new ArrayList<>();			
-			Iterator<Object> it = cache.getKeys().iterator();
-			
-			while(it.hasNext()) {
-				Object key = it.next();
-				Element element = cache.get(key);
-				configs.add( (Config) element.getObjectValue());
-			}		
-			return configs;
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private List<Config> getConfigListFromCache(Integer datasetId, String env) {
-		
-		logger.debug("Getting config from cache. Dataset Id : " + datasetId + " Env : " + env);
-		
-		Cache cache = getCache(CONFIG_CACHE + datasetId);		
-		if(null != cache) {		
-			
-			List<Config> configs = new ArrayList<>();			
-			Iterator<Object> it = cache.getKeys().iterator();
-			
-			while(it.hasNext()) {
-				
-				Object key = it.next();				
-				if( ((String)key).startsWith(env + ":")) {	
-					
-					Element element = cache.get(key);
-					configs.add( (Config) element.getObjectValue());
-				}
-			}		
-			return configs;
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @param datasetId
-	 * @param env
-	 * @param key
-	 * @return
-	 */
-	private Config getConfigFromCache(Integer datasetId, String env, String key) {
-		
-		logger.debug("Getting config from cache. Dataset Id : " + datasetId + " Env : " + env + " Key : " + key);
-		
-		Cache cache = getCache(CONFIG_CACHE + datasetId);		
-		if(null != cache) {			
-					
-			Element element = cache.get(env + ENV_KEY_SEPARATOR + key);
-			if(element != null) {
-				return (Config) element.getObjectValue();
-			}
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @param datasetId
-	 * @param configs
-	 */
-	private void storeConfigToCache(Integer datasetId, List<Config> configs) {
-		
-		Cache cache = getCache(CONFIG_CACHE + datasetId);
-		for(Config config : configs) {			
-			if(null != cache) {
-				cache.put(getElement(config));
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * @param config
-	 */
-	private void storeConfigToCache(Integer datasetId, String env, Config config) {
-		Cache cache = getCache(CONFIG_CACHE + datasetId);
-		if(null != cache) {
-			cache.put(getElement(config));			
-		}		
-	}
-	
-	private Element getElement(Config config) {
-		return new Element(config.getEnv().getSname() + ENV_KEY_SEPARATOR + config.getDataset().getDatasetid(), config);
-	} 
+
 }
