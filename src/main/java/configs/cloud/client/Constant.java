@@ -22,6 +22,6 @@ public final class Constant {
 	public static final String GET_ALL_ENV = "/api/env";
 	public static final String GET_ENV_BY_ENV = "/api/env/{envsname}";
 	public static final String UPDATE_CONFIG_ENABLED_STATUS_FOR_ENV = "/api/configs/{datasetid}/{envsname}/{key}/{isenabled}";
-	public static final String CONFIG_BY_RSQL_SEARCH="/api/configs/parser";
+	public static final String CONFIG_BY_RSQL_SEARCH="/api/configs/clientparser";
 
 }
