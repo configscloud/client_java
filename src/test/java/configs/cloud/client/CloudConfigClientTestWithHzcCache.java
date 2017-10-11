@@ -10,7 +10,7 @@ import configs.cloud.client.entity.Dataset;
 import configs.cloud.client.entity.Env;
 import configs.cloud.client.enums.CacheProvider;
 
-public class CloudConfigClientTest {
+public class CloudConfigClientTestWithHzcCache {
 	
 	CloudConfigClient tester = new CloudConfigClient("dG04MHBwUEJsMG81NU1GUktYZmEy","https://app.configs.cloud/",true,CacheProvider.HAZELCAST); // MyClass is tested
 	
@@ -21,9 +21,9 @@ public class CloudConfigClientTest {
 	String testkey = "ldap.hostname";
 	String testValue = "dev.ldap.example.com"; 
 	String envSname = "Dev"; 
-	String searchKey = "key==dev.ldap.*";
+	String searchKey = "key==ldap.*";
 	
-	public CloudConfigClientTest(){
+	public CloudConfigClientTestWithHzcCache(){
 		tester.setClientDefaults(2, "Dev");
 		
 		// *** Modify *** 
