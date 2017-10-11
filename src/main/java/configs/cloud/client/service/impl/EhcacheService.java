@@ -27,8 +27,8 @@ public class EhcacheService implements CacheService {
 	/**
 	 * Get cache with particular name. Create one if not available and return.
 	 * 
-	 * @param name
-	 * @return Cache
+	 * @param name Cache Name
+	 * @return Cache Cache 
 	 */
 
 	public Cache getCache(String name) {
@@ -57,8 +57,10 @@ public class EhcacheService implements CacheService {
 	}
 
 	/**
+	 * Retrieves Configs list from the cache 
 	 * 
-	 * @return
+	 * @param datasetId Dataset id
+	 * @return {@link List}&lt;{@link Config}&gt; List of Config objects
 	 */
 	@Override
 	public List<Config> getConfigListFromCache(Integer datasetId) {
@@ -83,8 +85,11 @@ public class EhcacheService implements CacheService {
 	}
 
 	/**
+	 * Retrieves Configs list from the cache 
 	 * 
-	 * @return
+	 * @param datasetId Dataset id
+	 * @param env Environment name
+	 * @return {@link List}&lt;{@link Config}&gt; List of Config objects
 	 */
 	@Override
 	public List<Config> getConfigListFromCache(Integer datasetId, String env) {
@@ -113,11 +118,12 @@ public class EhcacheService implements CacheService {
 	}
 
 	/**
+	 * Get Config Object from cache
 	 * 
-	 * @param datasetId
-	 * @param env
-	 * @param key
-	 * @return
+	 * @param datasetId DatasetId 
+	 * @param env		Environment short name 
+	 * @param key	Key
+	 * @return Config Config object
 	 */
 	@Override
 	public Config getConfigFromCache(Integer datasetId, String env, String key) {
@@ -137,9 +143,10 @@ public class EhcacheService implements CacheService {
 	}
 
 	/**
+	 * Stores Config object to Cache
 	 * 
-	 * @param datasetId
-	 * @param configs
+	 * @param datasetId Dataset id
+	 * @param configs List of Config objects to store
 	 */
 	@Override
 	public void storeConfigToCache(Integer datasetId, List<Config> configs) {
@@ -153,8 +160,11 @@ public class EhcacheService implements CacheService {
 	}
 
 	/**
+	 * Stores config to Cache
 	 * 
-	 * @param config
+	 * @param datasetId Dataset id
+	 * @param env Environment Short name
+	 * @param config Config object 
 	 */
 	@Override
 	public void storeConfigToCache(Integer datasetId, String env, Config config) {
