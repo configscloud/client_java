@@ -38,12 +38,11 @@ public class CloudConfigClient {
 
 	/**
 	 * 
-	 * @param apiKey
-	 *            Api Key
-	 * @param url
-	 *            Api endpoint
-	 * @param isCached
-	 *            if cache enabled or disabled. By default disabled
+	 * @param apiKey Api Key
+	 * @param url Api endpoint
+	 * @param isCached if cache enabled or disabled. <br>
+	 * 					By default disabled
+	 * @param cprovider CacheProvider name - Choose from EHCACHE | HAZELCAST
 	 */
 	public CloudConfigClient(String apiKey, String url, boolean isCached, CacheProvider cprovider) {
 
@@ -70,16 +69,12 @@ public class CloudConfigClient {
 
 	/**
 	 * 
-	 * @param apiKey
-	 *            Api Key
-	 * @param url
-	 *            Api endpoint
-	 * @param isCached
-	 *            if cache enabled or disabled. By default disabled
-	 * @param dataset
-	 *            Current dataset
-	 * @param environment
-	 *            Current environment
+	 * @param apiKey Api Key
+	 * @param url  Api endpoint
+	 * @param isCached if cache enabled or disabled. By default disabled
+	 * @param dataset  Current dataset
+	 * @param environment Current environment
+	 * @param cprovider CacheProvider name - Choose from EHCACHE | HAZELCAST          
 	 */
 	public CloudConfigClient(String apiKey, String url, boolean isCached, Integer dataset, String environment,
 			CacheProvider cprovider) {
@@ -110,7 +105,7 @@ public class CloudConfigClient {
 	/**
 	 * Returns Environment Short name under context
 	 * 
-	 * @return String Environment Shortname
+	 * @return Environment Shortname
 	 */
 	public String getCurrentEnvironment() {
 		return currentEnvironment;
@@ -119,7 +114,7 @@ public class CloudConfigClient {
 	/**
 	 * Returns Dataset Id under context
 	 * 
-	 * @return Integer Dataset Id
+	 * @return Dataset Id
 	 */
 	public Integer getCurrentDataset() {
 		return currentDataset;
@@ -129,8 +124,8 @@ public class CloudConfigClient {
 	 * Sets Default Datasetid and Environment ShortName in the context for all
 	 * further API calls
 	 * 
-	 * @param datasetId
-	 * @param environment
+	 * @param datasetId DatasetId
+	 * @param environment Environment Short name
 	 */
 	public void setClientDefaults(Integer datasetId, String environment) {
 		this.currentDataset = datasetId;
@@ -145,8 +140,9 @@ public class CloudConfigClient {
 	 * <br>
 	 * will be thrown.
 	 * 
-	 * @return {@link List}&lt;{@link Config}&gt;
-	 * @throws Exception
+	 * @return {@link List}&lt;{@link Config}&gt; List of Configs
+	 * @throws ContextNotFoundException Thrown when current dataset is not known
+	 * @throws Exception Exception Any other exception
 	 */
 	public List<Config> getConfigs() throws ContextNotFoundException, Exception {
 		if (currentDataset == 0) {
@@ -159,9 +155,9 @@ public class CloudConfigClient {
 	/**
 	 * Gets all Configurations in the requested Dataset.
 	 * 
-	 * @param datasetId
-	 * @return {@link List}&lt;{@link Config}&gt;
-	 * @throws Exception
+	 * @param datasetId Dataset Id
+	 * @return {@link List}&lt;{@link Config}&gt; List of Config objects
+	 * @throws Exception Exception
 	 */
 	public List<Config> getConfigs(Integer datasetId) throws Exception {
 
@@ -190,10 +186,10 @@ public class CloudConfigClient {
 	/**
 	 * Gets all Configurations in the requested Dataset and Environment.
 	 * 
-	 * @param datasetId
-	 * @param sname
-	 * @return {@link List}&lt;{@link Config}&gt;
-	 * @throws Exception
+	 * @param datasetId Dataset Id
+	 * @param sname Environment Short name
+	 * @return {@link List}&lt;{@link Config}&gt; List of Config Objects 
+	 * @throws Exception Exception
 	 */
 	public List<Config> getConfigs(Integer datasetId, String sname) throws Exception {
 
@@ -225,9 +221,9 @@ public class CloudConfigClient {
 	 * Use the setClientDefaults function to set the environment and dataset
 	 * defaults
 	 * 
-	 * @param key
-	 * @return String Value
-	 * @throws Exception
+	 * @param key Key 
+	 * @return String Value Value
+	 * @throws Exception Exception 
 	 */
 	public String getConfigValue(String key) throws Exception {
 
@@ -269,9 +265,9 @@ public class CloudConfigClient {
 	 * defaults.<br>
 	 * if key doesnt exist, then null is returned
 	 * 
-	 * @param key
-	 * @return Config Object
-	 * @throws Exception
+	 * @param key Key 
+	 * @return Config Config Object
+	 * @throws Exception Any Exception
 	 */
 	public Config getConfig(String key) throws Exception {
 
@@ -315,10 +311,10 @@ public class CloudConfigClient {
 	 * 
 	 * If Key doesnt exist for this environment, then - null - is returned.
 	 * 
-	 * @param envsname
-	 * @param key
-	 * @return Config object
-	 * @throws Exception
+	 * @param envsname Environment Short name
+	 * @param key Key
+	 * @return Config Config object
+	 * @throws Exception Any other Exception 
 	 */
 	public Config getConfig(String envsname, String key) throws Exception {
 
@@ -358,9 +354,9 @@ public class CloudConfigClient {
 	 * setClientDefaults() <br>
 	 * for the same dataset.
 	 * 
-	 * @param envsname
+	 * @param envsname Environment Short name
 	 * @return {@link List}&lt;{@link Config}&gt; List of all Configurations
-	 * @throws Exception
+	 * @throws Exception Any other Exception 
 	 */
 	public List<Config> getConfigs(String envsname) throws Exception {
 
@@ -395,9 +391,9 @@ public class CloudConfigClient {
 	 * Use setClientDefaults() to set applicable environment and dataset.<br>
 	 * Refer documentation for more details of the RSQL
 	 * 
-	 * @param searchQuery
-	 * @return {@link List}&lt;{@link Config}&gt;
-	 * @throws Exception
+	 * @param searchQuery Search Query
+	 * @return {@link List}&lt;{@link Config}&gt; List of Config Objects 
+	 * @throws Exception Any other Exception 
 	 */
 	public List<Config> searchConfigs(String searchQuery) throws Exception {
 
@@ -434,11 +430,14 @@ public class CloudConfigClient {
 	 * Use setClientDefaults() to set applicable environment and dataset.<br>
 	 * Refer documentation for more details of the RSQL<br>
 	 * 
-	 * @param searchQuery
-	 * @param iqk
-	 * @return {@link List}&lt;{@link Config}&gt;
-	 * @throws Exception
-	 */
+	 * @param searchQuery Search query. Refer documentation for more information on forming queries
+	 * @param iqk Ignore Query Key, Ignores the query key part from the keys out of results. <br>
+	 * 				This has been designed for accomodating the KeyPrefix, which allows to have duplicate<br>
+	 * 				keys with separate prefixes. <br>
+	 * 				for e.g. if template.ldap.*, when searched with key==template.*, returns only keys ldap.* <br>
+	 * @return {@link List}&lt;{@link Config}&gt;  List of Config Objects 
+	 * @throws Exception Any other Exception 
+	 */ 
 	public List<Config> searchConfigs(String searchQuery, boolean iqk) throws Exception {
 		if (currentDataset == 0 || currentEnvironment.isEmpty()) {
 			throw new ContextNotFoundException(
@@ -452,10 +451,10 @@ public class CloudConfigClient {
 	/**
 	 * Updates the config with the value.<br>
 	 * 
-	 * @param key
-	 * @param value
-	 * @return boolean - Updated Status
-	 * @throws Exception
+	 * @param key Key
+	 * @param value Value
+	 * @return boolean  Updated Status, as either true or false
+	 * @throws Exception Any other Exception 
 	 */
 	public boolean updateConfig(String key, String value) throws Exception {
 
@@ -489,10 +488,10 @@ public class CloudConfigClient {
 	 * Do note that the isEnabled status cannot be updated with the value of the
 	 * config.
 	 * 
-	 * @param key
-	 * @param isenabled
+	 * @param key Key
+	 * @param isenabled isEnabled - true or false
 	 * @return boolean - Update Status
-	 * @throws Exception
+	 * @throws Exception Any other Exception 
 	 */
 	public boolean updateConfig(String key, Character isenabled) throws Exception {
 
@@ -527,8 +526,8 @@ public class CloudConfigClient {
 	/**
 	 * Returns list of all Datasets allocated to the user.<br>
 	 * 
-	 * @return {@link List}&lt;{@link Dataset}&gt;
-	 * @throws Exception
+	 * @return {@link List}&lt;{@link Dataset}&gt; List of Dataset objects 
+	 * @throws Exception Any other Exception 
 	 */
 	public List<Dataset> getDatasets() throws Exception {
 
@@ -542,9 +541,9 @@ public class CloudConfigClient {
 	 * doenst exist, <br>
 	 * null is returned.
 	 * 
-	 * @param datasetId
-	 * @return Dataset - Returns the dataset context
-	 * @throws Exception
+	 * @param datasetId Dataset Id
+	 * @return Dataset  Returns the dataset context
+	 * @throws Exception Any other Exception 
 	 */
 	public Dataset getDataset(Long datasetId) throws Exception {
 
@@ -570,7 +569,7 @@ public class CloudConfigClient {
 	 * 
 	 * @return {@link List}&lt;{@link Env}&gt; List of Environments for Current
 	 *         user
-	 * @throws Exception
+	 * @throws Exception Any other Exception 
 	 */
 	public List<Env> getEnvironments() throws Exception {
 		Map<String, String> parameters = new HashMap<>();
@@ -582,9 +581,9 @@ public class CloudConfigClient {
 	 * Returns an environment with short name provided.<br>
 	 * If the environment is not available with name provided, null is returned.
 	 * 
-	 * @param shortname
-	 * @return Env - Environment details for given shortname
-	 * @throws Exception
+	 * @param shortname Environment Short name
+	 * @return Env Environment details for given shortname
+	 * @throws Exception Any other Exception 
 	 */
 	public Env getEnvironment(String shortname) throws Exception {
 		Map<String, String> parameters = new HashMap<>();
