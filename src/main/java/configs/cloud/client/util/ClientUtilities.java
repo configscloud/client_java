@@ -214,16 +214,16 @@ public class ClientUtilities {
 			return response;
 			
 		} else if (response.getStatus() == 401) {
-			throw new UnAuthorizedException("UnAuthorized");
+			throw new UnAuthorizedException("UnAuthorized.  : response = " + response);
 			
 		} else if (response.getStatus() == 403) {
-			throw new ForbiddenException("Access denied");
+			throw new ForbiddenException("Access denied.  : response = " + response);
 			
 		} else if (response.getStatus() == 404) {
-			throw new NotFoundException("Resource requested was not found on the server");
+			throw new NotFoundException("Resource requested was not found on the server.  : response = " + response);
 			
 		} else {
-			throw new RuntimeException("Internal server error");
+			throw new RuntimeException("Internal server error : response = " + response);
 		}
 	}
 	
