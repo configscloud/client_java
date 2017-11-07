@@ -1,5 +1,8 @@
 # How to use client config code?
 
+#### Documentation
+JavaDocs API Documentation : https://configs.cloud/clients/apidocs/
+
 #### Initialisation 
 Create the constructor CloudConfigClient and pass the argument 'REST API token' and base url "https://app.configs.cloud".
 
