@@ -1,7 +1,25 @@
 # How to use client config code?
 
 #### Documentation
-JavaDocs API Documentation : https://configs.cloud/clients/apidocs/
+JavaDocs API Documentation : https://configs.cloud/clients/apidocs/  
+
+Client Location in central repository: http://repo1.maven.org/maven2/cloud/configs/ConfigsCloudClient/
+
+#### General Notes
+* This is a Custom Java Client for [Configs.Cloud](https://configs.cloud) - Configuration Management Product.
+* This client is available ready for use and is uploaded to the Central Open Sonatype Repository. i.e. to use this client, simply add the dependency in Maven as:
+	```xml
+	<dependency>  
+		<groupId>cloud.configs</groupId>  
+		<artifactId>ConfigsCloudClient</artifactId>  
+		<version>1.1</version>  
+	</dependency>
+	```
+* You may modify Client as you need based on your requirements. If you are modifying the code, it is recommend that you create a local repository and continue (or) you may submit your changes to the central repo - by requesting a branch on the repo.
+* This Client implements __Client Side Caching__ using both - **EhCache (&) HazelCast**. Choose either of them as needed. Default is EhCache.
+* Refer API Docs above for easiness to understand the available APIs.
+* If you find any bugs (or) have more questions, pls raise the question on - [Communities link](https://groups.google.com/forum/#!forum/configscloud---general-discussion-issues-and-feature-requests)
+
 
 #### Initialisation 
 Create the constructor CloudConfigClient and pass the argument 'REST API token' and base url "https://app.configs.cloud".
@@ -92,7 +110,3 @@ following are some example for calling this method
 		List<Config> cd = c.getConfigByRSQLSearch("configid==2,
 		envid==1,key==com.configs");
 	
-	
-	
-
-
