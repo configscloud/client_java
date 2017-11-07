@@ -18,6 +18,9 @@ Client Location in central repository: http://repo1.maven.org/maven2/cloud/confi
 * You may modify Client as you need based on your requirements. If you are modifying the code, it is recommend that you create a local repository and continue (or) you may submit your changes to the central repo - by requesting a branch on the repo.
 * This Client implements __Client Side Caching__ using both - **EhCache (&) HazelCast**. Choose either of them as needed. Default is EhCache.
 * Refer API Docs above for easiness to understand the available APIs.
+* There are two steps to start using this client:
+	* Initialze the Client (Details below)
+	* Invoke APIs from the client (Details below)
 * If you find any bugs (or) have more questions, pls raise the question on - [Communities link](https://groups.google.com/forum/#!forum/configscloud---general-discussion-issues-and-feature-requests)
 
 
@@ -26,7 +29,7 @@ Create the constructor CloudConfigClient and pass the argument 'REST API token' 
 
 	CloudConfigClient c = new CloudConfigClient("ZXY4c2tsMk8wYm9jMFRGZ2RyRWoy", "https://app.configs.cloud");
 	
-(You can access following  methods using variable of CloudConfigClient object)
+Thats it, you are ready to go. Now Invoke/ start using APIs as you need below.
 
 #### Methods	
 To retrieve list of configs for particular dataset call  following method and pass the argument 'datasetid'.
