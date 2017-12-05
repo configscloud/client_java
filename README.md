@@ -27,7 +27,7 @@ Client Location in central repository: http://repo1.maven.org/maven2/cloud/confi
 #### Initialisation 
 Create the constructor CloudConfigClient and pass the argument 'REST API token' and base url "https://app.configs.cloud".
 
-	CloudConfigClient c = new CloudConfigClient("ZXY4c2tsMk8wYm9jMFRGZ2RyRWoy", "https://app.configs.cloud");
+	CloudConfigClient c = new CloudConfigClient("NmNLT0IwUmx1SU5nTERrdFh0RGsy", "https://app.configs.cloud", true, CacheProvider.EHCACHE);
 	
 Thats it, you are ready to go. Now Invoke/ start using APIs as you need below.
 
