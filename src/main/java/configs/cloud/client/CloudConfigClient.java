@@ -401,8 +401,9 @@ public class CloudConfigClient {
 			throw new ContextNotFoundException(
 					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
 		}
-
-		List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, false, url, Constant.CONFIG_BY_RSQL_SEARCH,
+		searchQuery = "key=="+searchQuery;
+		
+		List<Config> configs = ClientUtilities.searchConfigCall(searchQuery,String.valueOf(currentDataset.longValue()),currentEnvironment, false, url, Constant.CONFIG_BY_RSQL_SEARCH,
 				apiKey);
 		return configs;
 
@@ -443,7 +444,9 @@ public class CloudConfigClient {
 			throw new ContextNotFoundException(
 					"Cannot identify current Dataset or Environment. Recommendation: Call setClientDefaults to set current dataset and environment.");
 		}
-		List<Config> configs = ClientUtilities.searchConfigCall(searchQuery, iqk, url, Constant.CONFIG_BY_RSQL_SEARCH,
+		
+		searchQuery = "key=="+searchQuery;
+		List<Config> configs = ClientUtilities.searchConfigCall(searchQuery,String.valueOf(currentDataset.longValue()),currentEnvironment, iqk, url, Constant.CONFIG_BY_RSQL_SEARCH,
 				apiKey);
 		return configs;
 	}

@@ -53,7 +53,7 @@ public class ClientUtilities {
 		return configsList;
 	}
 
-	public static List<Config> searchConfigCall(String searchQuery, boolean iqkFlag, String url, String queryApi,
+	public static List<Config> searchConfigCall(String searchQuery,String datasetid,String envsname, boolean iqkFlag, String url, String queryApi,
 			String apiKey) throws Exception {
 		List<Config> configsList = new ArrayList<>(0);
 		Map<String, String> parameters = new HashMap<>();
@@ -63,6 +63,8 @@ public class ClientUtilities {
 			// add query params
 			MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 			queryParams.add(Constant.SEARCH, searchQuery);
+			queryParams.add(Constant.DATASETID, datasetid);
+			queryParams.add(Constant.ENV_SHORTNAME, envsname);
 			if (iqkFlag) 
 				queryParams.add(Constant.IQK, "Y");
 
